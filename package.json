@@ -1,0 +1,57 @@
+{
+  "name": "seed-cli",
+  "version": "0.1.0",
+  "description": "AI-powered intent bridge that bootstraps governed projects (pip + hatch)",
+  "main": "dist/index.js",
+  "bin": {
+    "seed": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "governance",
+    "scaffolding",
+    "pip",
+    "hatch",
+    "llm",
+    "intent"
+  ],
+  "author": "Derry Birkett",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "commander": "^12.0.0",
+    "inquirer": "^9.2.15",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1",
+    "execa": "^8.0.1",
+    "fs-extra": "^11.2.0",
+    "ejs": "^3.1.9",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "@types/inquirer": "^9.0.7",
+    "@types/fs-extra": "^11.0.4",
+    "@types/ejs": "^3.1.5",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
