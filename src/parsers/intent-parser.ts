@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-
 interface Intent {
   projectName: string;
   story: string;
@@ -18,28 +16,117 @@ interface ParsedIntent {
 }
 
 export async function parseIntent(intent: Intent, provider: string): Promise<ParsedIntent> {
-  if (provider === 'anthropic') {
+  // Auto-detect provider based on available API keys
+  const effectiveProvider = detectProvider(provider);
+  
+  if (effectiveProvider === 'openrouter') {
+    return parseWithOpenRouter(intent);
+  } else if (effectiveProvider === 'anthropic') {
     return parseWithAnthropic(intent);
-  } else if (provider === 'openai') {
-    throw new Error('OpenAI provider not yet implemented. Use --provider anthropic');
-  } else if (provider === 'local') {
-    throw new Error('Local provider not yet implemented. Use --provider anthropic');
+  } else if (effectiveProvider === 'openai') {
+    return parseWithOpenAI(intent);
   } else {
-    throw new Error(`Unknown provider: ${provider}`);
+    throw new Error(
+      `No LLM provider available. Set one of:\n` +
+      `  - OPENROUTER_API_KEY (recommended - 100+ models)\n` +
+      `  - ANTHROPIC_API_KEY\n` +
+      `  - OPENAI_API_KEY`
+    );
   }
 }
 
+function detectProvider(preferred: string): string {
+  // If user specified a provider, try that first
+  if (preferred === 'openrouter') {
+    if (process.env.OPENROUTER_API_KEY) return 'openrouter';
+  } else if (preferred === 'anthropic') {
+    if (process.env.ANTHROPIC_API_KEY) return 'anthropic';
+  } else if (preferred === 'openai') {
+    if (process.env.OPENAI_API_KEY) return 'openai';
+  } else if (preferred === 'local') {
+    // Local could be OpenRouter pointing to local model
+    if (process.env.OPENROUTER_API_KEY) return 'openrouter';
+  }
+  
+  // Auto-detect: check in order of preference
+  if (process.env.OPENROUTER_API_KEY) return 'openrouter';
+  if (process.env.ANTHROPIC_API_KEY) return 'anthropic';
+  if (process.env.OPENAI_API_KEY) return 'openai';
+  
+  return 'none';
+}
+
 async function parseWithAnthropic(intent: Intent): Promise<ParsedIntent> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      'ANTHROPIC_API_KEY not found. Set it with: export ANTHROPIC_API_KEY="sk-ant-..."'
-    );
+  const Anthropic = await import('@anthropic-ai/sdk');
+  const apiKey = process.env.ANTHROPIC_API_KEY!;
+
+  const client = new Anthropic.default({ apiKey });
+
+  const prompt = buildPrompt(intent);
+
+  const message = await client.messages.create({
+    model: 'claude-3-5-sonnet-20241022',
+    max_tokens: 2048,
+    messages: [{ role: 'user', content: prompt }],
+  });
+
+  return parseResponse(message.content[0], intent);
+}
+
+async function parseWithOpenRouter(intent: Intent): Promise<ParsedIntent> {
+  const apiKey = process.env.OPENROUTER_API_KEY!;
+  const prompt = buildPrompt(intent);
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'anthropic/claude-3.5-sonnet',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2048,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`OpenRouter error: ${error}`);
   }
 
-  const client = new Anthropic({ apiKey });
+  const data = await response.json() as { choices: Array<{ message: { content: string } }> };
+  return parseResponseText(data.choices[0].message.content, intent);
+}
 
-  const prompt = `You are an expert product strategist helping parse user intent for a new software project.
+async function parseWithOpenAI(intent: Intent): Promise<ParsedIntent> {
+  const apiKey = process.env.OPENAI_API_KEY!;
+  const prompt = buildPrompt(intent);
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 2048,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`OpenAI error: ${error}`);
+  }
+
+  const data = await response.json() as { choices: Array<{ message: { content: string } }> };
+  return parseResponseText(data.choices[0].message.content, intent);
+}
+
+function buildPrompt(intent: Intent): string {
+  return `You are an expert product strategist helping parse user intent for a new software project.
 
 Given this user story:
 "${intent.story}"
@@ -60,39 +147,25 @@ Please analyze and extract the following in JSON format:
 }
 
 Be specific and actionable. Ensure metrics are measurable with clear targets.`;
+}
 
-  const message = await client.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: 2048,
-    messages: [
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ],
-  });
-
-  // Extract JSON from response
-  const content = message.content[0];
+function parseResponse(content: { type: string; text?: string }, intent: Intent): ParsedIntent {
   if (content.type !== 'text') {
     throw new Error('Unexpected response type from Claude');
   }
+  return parseResponseText(content.text || '', intent);
+}
 
-  // Parse JSON from text (Claude might wrap it in markdown)
-  const jsonMatch = content.text.match(/\{[\s\S]*\}/);
+function parseResponseText(text: string, intent: Intent): ParsedIntent {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error('Failed to extract JSON from Claude response');
+    throw new Error('Failed to extract JSON from response');
   }
 
   const parsed = JSON.parse(jsonMatch[0]) as ParsedIntent;
 
-  // Override with user-provided values if present
-  if (intent.vision) {
-    parsed.vision = intent.vision;
-  }
-  if (intent.metrics?.length) {
-    parsed.metrics = intent.metrics;
-  }
+  if (intent.vision) parsed.vision = intent.vision;
+  if (intent.metrics?.length) parsed.metrics = intent.metrics;
 
   return parsed;
 }

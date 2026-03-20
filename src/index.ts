@@ -15,10 +15,10 @@ program
   .description('Initialize a new governed project from intent')
   .option('-s, --story <story>', 'User story describing the project intent')
   .option('--vision <vision>', '12-month vision statement')
-  .option('-m, --metric <metric>', 'Success metric (can be repeated)', (value, previous) => {
+  .option('-m, --metric <metric>', 'Success metric (can be repeated)', (value, previous?: string[]) => {
     return previous ? [...previous, value] : [value];
   })
-  .option('--provider <provider>', 'LLM provider (anthropic, openai, local)', 'anthropic')
+  .option('--provider <provider>', 'LLM provider (openrouter, anthropic, openai, auto)', 'auto')
   .option('--no-hatch', 'Skip hatch code generation (pip only)')
   .option('--no-install', 'Skip installing dependencies')
   .action(initCommand);
