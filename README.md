@@ -1,25 +1,25 @@
-# 🌱 Seed
+# Seed
 
 **AI-powered intent bridge for governed project bootstrapping**
 
-Seed translates your product intent into synchronized governance ([pip](https://github.com/derrybirkett/pip)) and execution ([hatch](https://github.com/derrybirkett/hatch)) in one intelligent flow.
+Seed translates your product intent into synchronized governance (grove) and execution (hatch) in one intelligent flow.
 
 ---
 
-## 🎯 What is Seed?
+## What is Seed?
 
 Seed is the missing bridge between human intent and agentic development:
 
 - **You provide**: Natural language intent ("As a UX consultant, I want clients to earn money...")
 - **Seed parses**: Uses LLM to extract users, problems, solutions, metrics
-- **Seed generates**: 
-  - Governance layer (pip): mission.md, metrics, agent roles, roadmap
+- **Seed generates**:
+  - Agentic layer (grove): mission.md, metrics, agent roles, workflows
   - Technical foundation (hatch): Nx monorepo, auth, API, UI, tests
 - **Result**: Aligned project ready for development in <5 minutes
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Install seed globally
@@ -39,7 +39,7 @@ pnpm install
 pnpm dev
 
 # Your project now has:
-# ✓ .pip/ - Governance layer with mission, metrics, patterns
+# ✓ grove/ - Agentic layer with mission, metrics, patterns
 # ✓ apps/ - Working applications (website, dashboard, API)
 # ✓ libs/ - Shared libraries (UI, auth, utilities)
 # ✓ Full alignment between mission and code
@@ -47,33 +47,33 @@ pnpm dev
 
 ---
 
-## ✨ Features
+## Features
 
-### 🧠 **Intelligent Intent Parsing**
+### Intelligent Intent Parsing
 - Extracts users, problems, solutions from natural language
 - Suggests success metrics based on outcomes
 - Infers features needed to achieve metrics
 - Validates completeness before generation
 
-### 🎯 **Bi-directional Alignment**
-- pip mission metrics → inform hatch features
-- hatch generated code → populate pip roadmap
+### Bi-directional Alignment
+- grove mission metrics → inform hatch features
+- hatch generated code → populate grove roadmap
 - Every feature maps to a success metric
 - Activity log initialized with bootstrap entry
 
-### ⚡ **Time Savings**
+### Time Savings
 - 5 minutes vs 45 minutes manual setup
 - No context switching between governance and code
 - Pre-vetted alignment reduces rework
 
-### 🔌 **Ecosystem Integration**
-- Generates pip governance structure
+### Ecosystem Integration
+- Generates grove governance structure
 - Calls hatch programmatically for code
 - Maintains separation of concerns (intent → structures)
 
 ---
 
-## 📖 How It Works
+## How It Works
 
 ```
 ┌─────────────────────────────────────────┐
@@ -90,7 +90,7 @@ pnpm dev
     ┌───────────┴───────────┐
     ▼                       ▼
 ┌───────────┐          ┌────────────┐
-│    PIP    │          │   HATCH    │
+│   GROVE   │          │   HATCH    │
 │ Generator │          │ Generator  │
 └─────┬─────┘          └─────┬──────┘
       │                      │
@@ -104,7 +104,7 @@ pnpm dev
 
 ---
 
-## 🎨 Usage Modes
+## Usage Modes
 
 ### Interactive Mode (Guided)
 ```bash
@@ -135,14 +135,12 @@ seed init --config ./seed.config.json
 
 ---
 
-## 📦 What Gets Generated
+## What Gets Generated
 
-### Governance Layer (.pip/)
+### Agentic Layer (grove/)
 - `mission/mission.md` - Who, what, why, vision, metrics
-- `ia/agent_manifest.yml` - Decision rights (CEO, CTO, CPO, etc.)
-- `method/delivery-method.md` - Development methodology
-- `graph/product-app.md` - Initial roadmap with priorities
-- `patterns/agent-workflows/` - Agentic development patterns
+- `agent-manifest.md` - Decision rights (Product, UX, Dev)
+- `workflows/development.md` - Development methodology
 - `docs/activity-log.md` - Initialized with seed entry
 
 ### Technical Foundation (via hatch)
@@ -155,11 +153,11 @@ seed init --config ./seed.config.json
 ### Alignment Artifacts
 - Features mapped to metrics in roadmap
 - Initial activity log entry documenting bootstrap
-- Cross-reference between pip mission and hatch code
+- Cross-reference between grove mission and hatch code
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### API Keys
 ```bash
@@ -180,21 +178,21 @@ seed init --provider local      # Use Ollama (coming soon)
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 Seed is designed with clear separation of concerns:
 
 **seed** (this repo):
 - Intent parsing (LLM)
-- Governance generation (pip templates)
+- Governance generation (grove templates)
 - Orchestration (calls hatch)
 - Alignment validation
 
-**pip** (governance):
+**grove** (governance):
 - Mission templates
-- Agent roles
-- Agentic patterns
-- Documentation standards
+- Agent roles (Product, UX, Dev)
+- Workflows
+- Activity tracking
 
 **hatch** (execution):
 - Code generation
@@ -204,31 +202,25 @@ Seed is designed with clear separation of concerns:
 
 ---
 
-## 📊 Comparison
+## Comparison
 
 | Approach | Setup Time | Governance | Code Quality | Alignment |
 |----------|------------|------------|--------------|-----------|
-| **Manual** | 2-4 weeks | ❌ None | ⚠️ Variable | ❌ Drifts |
-| **hatch only** | 3 minutes | ❌ None | ✅ High | ⚠️ N/A |
-| **pip only** | 45 minutes | ✅ Strong | ❌ None | ⚠️ N/A |
-| **seed** | 5 minutes | ✅ Strong | ✅ High | ✅ Locked |
+| **Manual** | 2-4 weeks | None | Variable | Drifts |
+| **hatch only** | 3 minutes | None | High | N/A |
+| **grove only** | 45 minutes | Strong | None | N/A |
+| **seed** | 5 minutes | Strong | High | Locked |
 
 ---
 
-## 🛣️ Roadmap
+## Roadmap
 
-### v0.1.0 - MVP (Current)
+### v0.2.0 - Bloom Integration (Current)
 - [x] Project structure
-- [ ] CLI with init command
-- [ ] Basic LLM parsing
-- [ ] pip mission.md generation
-- [ ] Manual hatch invocation reminder
-
-### v0.2.0 - Hatch Integration
-- [ ] Programmatic hatch execution
-- [ ] Feature extraction from metrics
-- [ ] Roadmap population
-- [ ] Alignment validation
+- [x] CLI with init command
+- [x] Basic LLM parsing
+- [x] grove mission.md generation
+- [x] Hatch integration
 
 ### v0.3.0 - Intelligence
 - [ ] Multi-step LLM reasoning
@@ -251,7 +243,7 @@ Seed is designed with clear separation of concerns:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Seed is in early development. Contributions welcome!
 
@@ -272,23 +264,24 @@ node dist/index.js init
 
 ---
 
-## 📝 License
+## License
 
 MIT License - see [LICENSE](LICENSE) file
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 Built on top of:
-- [pip](https://github.com/derrybirkett/pip) - Agentic governance framework
+- [grove](https://github.com/derrybirkett/grove) - Agentic governance framework
 - [hatch](https://github.com/derrybirkett/hatch) - SaaS application bootstrapping
+- [prefs](https://github.com/derrybirkett/prefs) - Design values and preferences
 - [Anthropic Claude](https://anthropic.com) - LLM intelligence
 - [OpenAI GPT](https://openai.com) - Alternative LLM provider
 
 ---
 
-## 📞 Support
+## Support
 
 - Documentation: [docs/](docs/)
 - Issues: [GitHub Issues](https://github.com/derrybirkett/seed/issues)
@@ -296,7 +289,7 @@ Built on top of:
 
 ---
 
-**Ready to plant the seeds of your next project? 🌱**
+**Ready to plant the seeds of your next project?**
 
 ```bash
 npm install -g seed-cli

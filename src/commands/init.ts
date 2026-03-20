@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { join } from 'path';
 import { parseIntent } from '../parsers/intent-parser.js';
-import { generatePipGovernance } from '../generators/pip-generator.js';
+import { generateGroveGovernance } from '../generators/grove-generator.js';
 import { generateHatchCode } from '../generators/hatch-generator.js';
 import { addPrefsSubmodule } from '../generators/prefs-generator.js';
 import { validateAlignment } from '../validators/alignment-validator.js';
@@ -16,14 +16,15 @@ interface InitOptions {
   hatch: boolean;
   install: boolean;
   llm: boolean;
-  prefs: boolean;
+  prefs: boolean | string;
+  grove: boolean;
 }
 
 export async function initCommand(projectName: string | undefined, options: InitOptions) {
-  console.log(chalk.green.bold('\n🌱 Seed - Bootstrap governed projects with AI\n'));
+  console.log(chalk.green.bold('\n🌱 Seed - Plant your idea\n'));
 
   try {
-    // Step 1: Gather intent (interactive or from flags)
+    // Step 1: Gather intent
     const intent = await gatherIntent(projectName, options);
 
     let parsed: {
@@ -85,41 +86,51 @@ export async function initCommand(projectName: string | undefined, options: Init
       return;
     }
 
-    // Step 4: Generate pip governance
-    const pipSpinner = ora('Generating governance layer (pip)...').start();
-    await generatePipGovernance(intent.projectName, parsed);
-    pipSpinner.succeed('Governance layer created');
+    // Step 4: Generate grove (agentic layer)
+    if (options.grove) {
+      const groveSpinner = ora('Seeding intent into grove...').start();
+      await generateGroveGovernance(intent.projectName, parsed);
+      groveSpinner.succeed('Grove seeded with mission');
+    }
 
-    // Step 5: Add prefs submodule
+    // Step 5: Add prefs
     if (options.prefs) {
-      const prefsSpinner = ora('Adding preferences (prefs)...').start();
+      const prefsSpinner = ora('Adding preferences...').start();
       const projectPath = join(process.cwd(), intent.projectName);
-      await addPrefsSubmodule(projectPath);
+      const prefsUrl = typeof options.prefs === 'string' ? options.prefs : undefined;
+      await addPrefsSubmodule(projectPath, prefsUrl);
       prefsSpinner.succeed('Preferences added');
     }
 
-    // Step 6: Generate hatch code (if enabled)
+    // Step 6: Generate hatch (stack scaffold)
     if (options.hatch) {
-      const hatchSpinner = ora('Generating technical foundation (hatch)...').start();
+      const hatchSpinner = ora('Scaffolding with hatch...').start();
       await generateHatchCode(intent.projectName, parsed);
-      hatchSpinner.succeed('Technical foundation created');
+      hatchSpinner.succeed('Stack scaffolded');
     }
 
     // Step 7: Validate alignment
-    const alignSpinner = ora('Validating alignment...').start();
-    const alignment = await validateAlignment(intent.projectName);
-    alignSpinner.succeed(`Alignment: ${alignment.score}%`);
+    if (options.grove) {
+      const alignSpinner = ora('Validating alignment...').start();
+      const alignment = await validateAlignment(intent.projectName);
+      alignSpinner.succeed(`Alignment: ${alignment.score}%`);
+    }
 
-    // Step 7: Next steps
-    console.log(chalk.green.bold('\n✅ Project initialized successfully!\n'));
+    // Step 8: Summary
+    console.log(chalk.green.bold('\n✅ Project planted successfully!\n'));
     console.log(chalk.cyan('📦 Your project:'), chalk.bold(intent.projectName + '/'));
+    console.log(chalk.cyan('\nComponents:'));
+    if (options.grove) console.log('   ✓ grove/ - Agentic layer');
+    if (options.prefs) console.log('   ✓ prefs/ - Your preferences');
+    if (options.hatch) console.log('   ✓ apps/ - Scaffolded stack');
+    
     console.log(chalk.cyan('\nNext steps:'));
     console.log(`   cd ${intent.projectName}`);
     if (options.install) {
       console.log(`   pnpm install`);
     }
     console.log(`   pnpm dev`);
-    console.log(chalk.dim('\nThen iterate using pip patterns in .pip/patterns/agent-workflows/'));
+    console.log(chalk.dim('\nAgents read grove/ at session start to understand context.'));
   } catch (error) {
     console.error(chalk.red('\n❌ Error:'), error instanceof Error ? error.message : error);
     process.exit(1);
