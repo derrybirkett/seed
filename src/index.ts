@@ -21,6 +21,8 @@ program
   .option('--provider <provider>', 'LLM provider (openrouter, anthropic, openai, auto)', 'auto')
   .option('--no-hatch', 'Skip hatch code generation (pip only)')
   .option('--no-install', 'Skip installing dependencies')
+  .option('--no-llm', 'Skip LLM parsing, use story/vision/metrics directly')
+  .option('--no-prefs', 'Skip adding prefs submodule')
   .action(initCommand);
 
 program

@@ -1,9 +1,11 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
+import { join } from 'path';
 import { parseIntent } from '../parsers/intent-parser.js';
 import { generatePipGovernance } from '../generators/pip-generator.js';
 import { generateHatchCode } from '../generators/hatch-generator.js';
+import { addPrefsSubmodule } from '../generators/prefs-generator.js';
 import { validateAlignment } from '../validators/alignment-validator.js';
 
 interface InitOptions {
@@ -13,19 +15,52 @@ interface InitOptions {
   provider: 'anthropic' | 'openai' | 'local';
   hatch: boolean;
   install: boolean;
+  llm: boolean;
+  prefs: boolean;
 }
 
 export async function initCommand(projectName: string | undefined, options: InitOptions) {
   console.log(chalk.green.bold('\n🌱 Seed - Bootstrap governed projects with AI\n'));
 
-  // Step 1: Gather intent (interactive or from flags)
-  const intent = await gatherIntent(projectName, options);
-
-  // Step 2: Parse intent with LLM
-  const spinner = ora('Analyzing intent with AI...').start();
   try {
-    const parsed = await parseIntent(intent, options.provider);
-    spinner.succeed('Intent parsed successfully');
+    // Step 1: Gather intent (interactive or from flags)
+    const intent = await gatherIntent(projectName, options);
+
+    let parsed: {
+      primaryUser: string;
+      secondaryUsers: string[];
+      problem: string;
+      solution: string;
+      vision: string;
+      metrics: string[];
+      suggestedFeatures: string[];
+    };
+
+    // Step 2: Parse intent (LLM or direct)
+    if (options.llm) {
+      const spinner = ora('Analyzing intent with AI...').start();
+      try {
+        parsed = await parseIntent(intent, options.provider);
+        spinner.succeed('Intent parsed successfully');
+      } catch (error) {
+        spinner.fail('Failed to parse intent');
+        throw error;
+      }
+    } else {
+      console.log(chalk.cyan('\n📋 Direct Mission (no LLM):\n'));
+      parsed = {
+        primaryUser: 'user',
+        secondaryUsers: [],
+        problem: intent.story || 'No story provided',
+        solution: 'See mission description',
+        vision: intent.vision || 'Not specified',
+        metrics: intent.metrics || ['No metrics specified'],
+        suggestedFeatures: [],
+      };
+      console.log(`   Story: ${intent.story}`);
+      console.log(`   Vision: ${parsed.vision}`);
+      console.log(`   Metrics: ${parsed.metrics.join(', ')}`);
+    }
 
     // Step 3: Show preview and confirm
     console.log(chalk.cyan('\n📋 Generated Mission:\n'));
@@ -55,14 +90,22 @@ export async function initCommand(projectName: string | undefined, options: Init
     await generatePipGovernance(intent.projectName, parsed);
     pipSpinner.succeed('Governance layer created');
 
-    // Step 5: Generate hatch code (if enabled)
+    // Step 5: Add prefs submodule
+    if (options.prefs) {
+      const prefsSpinner = ora('Adding preferences (prefs)...').start();
+      const projectPath = join(process.cwd(), intent.projectName);
+      await addPrefsSubmodule(projectPath);
+      prefsSpinner.succeed('Preferences added');
+    }
+
+    // Step 6: Generate hatch code (if enabled)
     if (options.hatch) {
       const hatchSpinner = ora('Generating technical foundation (hatch)...').start();
       await generateHatchCode(intent.projectName, parsed);
       hatchSpinner.succeed('Technical foundation created');
     }
 
-    // Step 6: Validate alignment
+    // Step 7: Validate alignment
     const alignSpinner = ora('Validating alignment...').start();
     const alignment = await validateAlignment(intent.projectName);
     alignSpinner.succeed(`Alignment: ${alignment.score}%`);
@@ -78,7 +121,6 @@ export async function initCommand(projectName: string | undefined, options: Init
     console.log(`   pnpm dev`);
     console.log(chalk.dim('\nThen iterate using pip patterns in .pip/patterns/agent-workflows/'));
   } catch (error) {
-    spinner.fail('Failed to parse intent');
     console.error(chalk.red('\n❌ Error:'), error instanceof Error ? error.message : error);
     process.exit(1);
   }
