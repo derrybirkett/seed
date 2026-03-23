@@ -4,7 +4,7 @@ import path from 'path';
 interface AlignmentResult {
   score: number;
   checks: {
-    pipExists: boolean;
+    groveExists: boolean;
     hatchExists: boolean;
     missionDefined: boolean;
     metricsDefined: boolean;
@@ -13,13 +13,13 @@ interface AlignmentResult {
 
 export async function validateAlignment(projectName: string): Promise<AlignmentResult> {
   const projectPath = path.join(process.cwd(), projectName);
-  const pipPath = path.join(projectPath, '.pip');
+  const grovePath = path.join(projectPath, 'grove');
 
   const checks = {
-    pipExists: await fs.pathExists(pipPath),
+    groveExists: await fs.pathExists(grovePath),
     hatchExists: await fs.pathExists(path.join(projectPath, 'apps')),
-    missionDefined: await fs.pathExists(path.join(pipPath, 'mission', 'mission.md')),
-    metricsDefined: await fs.pathExists(path.join(pipPath, 'graph', 'product-app.md')),
+    missionDefined: await fs.pathExists(path.join(grovePath, 'mission', 'mission.md')),
+    metricsDefined: await fs.pathExists(path.join(grovePath, 'mission', 'mission.md')),
   };
 
   // Simple scoring: each check is worth 25%

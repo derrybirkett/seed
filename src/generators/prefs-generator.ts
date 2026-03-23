@@ -95,19 +95,19 @@ async function generateClaudeMd(projectDir: string) {
 
   const claudeContent = `# Claude Code Instructions
 
-This project follows Foundation development practices.
+This project follows Bloom development practices.
 
 ## Development Workflow
 
-1. Read \`.prefs/prefs.yaml\` for tech stack preferences
-2. Read \`.pip/mission/mission.md\` for project mission
-3. Read \`.pip/graph/product-app.md\` for roadmap
+1. Read \`prefs/prefs.yaml\` for tech stack preferences
+2. Read \`grove/mission/mission.md\` for project mission
+3. Read \`grove/agent-manifest.md\` for agent roles
 4. Implement features following spec-first development
 5. Use \`wrap up\` command to commit and push
 
 ## Preferences
 
-See \`.prefs/prefs.yaml\` for:
+See \`prefs/prefs.yaml\` for:
 - Tech stack (NX, Playwright, shadcn)
 - Build order (CLI → API → UI)
 - Design principles (minimalism, black/white)
@@ -115,10 +115,10 @@ See \`.prefs/prefs.yaml\` for:
 
 ## Governance
 
-See \`.pip/\` for:
+See \`grove/\` for:
 - Mission and vision
-- Agent roles and responsibilities
-- Product roadmap
+- Agent roles and responsibilities (Product, UX, Dev)
+- Workflows
 - Activity log
 
 ## Source of Truth
