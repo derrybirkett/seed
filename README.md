@@ -1,3 +1,7 @@
+> **Note:** This project's ideas evolved into [bloom](https://github.com/derrybirkett/bloom). This repo remains accessible for reference; see [TOMBSTONE.md](TOMBSTONE.md) for the salvage map. Original content below.
+
+---
+
 # Seed
 
 **AI-powered intent bridge for governed project bootstrapping**
